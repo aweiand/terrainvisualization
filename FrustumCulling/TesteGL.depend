@@ -1,0 +1,385 @@
+# depslib dependency file v1.0
+1301527751 source:/home/administrator/Desktop/OpenGL-Ubuntu/main.cpp
+	<iostream>
+	<GL/glut.h>
+
+1370385653 /usr/include/GL/glut.h
+	"freeglut_std.h"
+
+1370385653 /usr/include/GL/freeglut_std.h
+	<windows.h>
+	<OpenGL/gl.h>
+	<OpenGL/glu.h>
+	<GL/gl.h>
+	<GL/glu.h>
+	<stdlib.h>
+
+1381415960 /usr/include/GL/gl.h
+	"gl_mangle.h"
+	<stdlib.h>
+	<windows.h>
+	<GL/glext.h>
+
+1381415960 /usr/include/GL/gl_mangle.h
+
+1381553386 /usr/include/stdlib.h
+	<features.h>
+	<stddef.h>
+	<bits/waitflags.h>
+	<bits/waitstatus.h>
+	<xlocale.h>
+	<sys/types.h>
+	<alloca.h>
+	<bits/stdlib-float.h>
+	<bits/stdlib.h>
+	<bits/stdlib-ldbl.h>
+
+1381553367 /usr/include/features.h
+	<stdc-predef.h>
+	<sys/cdefs.h>
+	<gnu/stubs.h>
+
+1295651118 /usr/include/bits/predefs.h
+
+1295651187 /usr/include/sys/cdefs.h
+	<features.h>
+	<bits/wordsize.h>
+
+1295651162 /usr/include/bits/wordsize.h
+
+1295651118 /usr/include/gnu/stubs.h
+	<bits/wordsize.h>
+	<gnu/stubs-32.h>
+	<gnu/stubs-64.h>
+
+1295650595 /usr/include/gnu/stubs-32.h
+
+1295651181 /usr/include/bits/waitflags.h
+
+1295651181 /usr/include/bits/waitstatus.h
+	<endian.h>
+
+1381553389 /usr/include/endian.h
+	<features.h>
+	<bits/endian.h>
+	<bits/byteswap.h>
+
+1295651170 /usr/include/bits/endian.h
+
+1295651170 /usr/include/bits/byteswap.h
+	<bits/wordsize.h>
+
+1381553368 /usr/include/xlocale.h
+
+1295651181 /usr/include/sys/types.h
+	<features.h>
+	<bits/types.h>
+	<time.h>
+	<stddef.h>
+	<endian.h>
+	<sys/select.h>
+	<sys/sysmacros.h>
+	<bits/pthreadtypes.h>
+
+1295651181 /usr/include/bits/types.h
+	<features.h>
+	<bits/wordsize.h>
+	<bits/typesizes.h>
+
+1295651181 /usr/include/bits/typesizes.h
+
+1295651176 /usr/include/time.h
+	<features.h>
+	<stddef.h>
+	<bits/time.h>
+	<bits/types.h>
+	<bits/types.h>
+	<bits/types.h>
+	<bits/types.h>
+	<bits/types.h>
+	<xlocale.h>
+
+1295651176 /usr/include/bits/time.h
+	<bits/types.h>
+	<bits/types.h>
+
+1295651187 /usr/include/sys/select.h
+	<features.h>
+	<bits/types.h>
+	<bits/select.h>
+	<bits/sigset.h>
+	<time.h>
+	<bits/time.h>
+
+1295651187 /usr/include/bits/select.h
+	<bits/wordsize.h>
+
+1295651161 /usr/include/bits/sigset.h
+
+1295651181 /usr/include/sys/sysmacros.h
+	<features.h>
+
+1295651181 /usr/include/bits/pthreadtypes.h
+	<bits/wordsize.h>
+
+1381553387 /usr/include/alloca.h
+	<features.h>
+	<stddef.h>
+
+1295651162 /usr/include/bits/stdlib.h
+
+1295651162 /usr/include/bits/stdlib-ldbl.h
+
+1381415960 /usr/include/GL/glext.h
+	<windows.h>
+	<stddef.h>
+	<inttypes.h>
+	<inttypes.h>
+	<inttypes.h>
+	<stdint.h>
+	<stdint.h>
+	<inttypes.h>
+
+1381553386 /usr/include/inttypes.h
+	<features.h>
+	<stdint.h>
+	<stddef.h>
+
+1381553387 /usr/include/stdint.h
+	<features.h>
+	<bits/wchar.h>
+	<bits/wordsize.h>
+
+1295651171 /usr/include/bits/wchar.h
+
+1377762949 /usr/include/GL/glu.h
+	"glu_mangle.h"
+	<GL/gl.h>
+
+1377762949 /usr/include/GL/glu_mangle.h
+
+1301528003 source:/home/administrator/Desktop/OpenGL-Ubuntu/ProgramaBasicoOpenGL.cpp
+	<iostream>
+	<GL/glut.h>
+
+1397675925 source:/home/augustoweiand/Documentos/CG/Teste3D-v2.cpp
+	<stdio.h>
+	<string.h>
+	<iostream>
+	<cstdlib>
+	<GL/glut.h>
+	<GL/gl.h>
+	<GL/glu.h>
+	"SOIL/SOIL.h"
+	"ImageClass.h"
+
+1381553388 /usr/include/stdio.h
+	<features.h>
+	<stddef.h>
+	<bits/types.h>
+	<libio.h>
+	<stdarg.h>
+	<bits/stdio_lim.h>
+	<bits/sys_errlist.h>
+	<getopt.h>
+	<bits/stdio.h>
+	<bits/stdio2.h>
+	<bits/stdio-ldbl.h>
+
+1381553367 /usr/include/stdc-predef.h
+	<bits/predefs.h>
+
+1381553388 /usr/include/libio.h
+	<_G_config.h>
+	<stdarg.h>
+	<sys/cdefs.h>
+	<bits/stdio-lock.h>
+	<shlib-compat.h>
+	<bits/libio-ldbl.h>
+
+1381553388 /usr/include/_G_config.h
+	<bits/types.h>
+	<stddef.h>
+	<wchar.h>
+	<gconv.h>
+
+1381553390 /usr/include/wchar.h
+	<features.h>
+	<stdio.h>
+	<stdarg.h>
+	<bits/wchar.h>
+	<stddef.h>
+	<wctype.h>
+	<xlocale.h>
+	<xlocale.h>
+	<xlocale.h>
+	<wctype.h>
+	<bits/wchar2.h>
+	<bits/wchar-ldbl.h>
+
+1381553395 /usr/include/wctype.h
+	<features.h>
+	<bits/types.h>
+	<wchar.h>
+	<endian.h>
+	<xlocale.h>
+
+1381553367 /usr/include/gconv.h
+	<features.h>
+	<wchar.h>
+	<stddef.h>
+
+1381553392 /usr/include/getopt.h
+	<ctype.h>
+
+1381553383 /usr/include/ctype.h
+	<features.h>
+	<bits/types.h>
+	<endian.h>
+	<xlocale.h>
+
+1381553389 /usr/include/string.h
+	<features.h>
+	<stddef.h>
+	<xlocale.h>
+	<bits/string.h>
+	<bits/string2.h>
+	<bits/string3.h>
+
+1215465208 /home/augustoweiand/Documentos/CG/SOIL/SOIL.h
+
+1308107040 /home/augustoweiand/Documentos/CG/ImageClass.h
+	<iostream>
+	<windows.h>
+	"gl\glut.h"
+	<GL/glut.h>
+	"SOIL/SOIL.h"
+
+1215465208 source:/home/augustoweiand/Documentos/CG/SOIL/image_DXT.cpp
+	"image_DXT.h"
+	<math.h>
+	<stdlib.h>
+	<string.h>
+	<stdio.h>
+
+1215465208 /home/augustoweiand/Documentos/CG/SOIL/image_DXT.h
+
+1381553385 /usr/include/math.h
+	<features.h>
+	<bits/huge_val.h>
+	<bits/huge_valf.h>
+	<bits/huge_vall.h>
+	<bits/inf.h>
+	<bits/nan.h>
+	<bits/mathdef.h>
+	<bits/mathcalls.h>
+	<bits/mathcalls.h>
+	<bits/mathcalls.h>
+	<bits/mathinline.h>
+	<bits/math-finite.h>
+
+1215465208 source:/home/augustoweiand/Documentos/CG/SOIL/image_helper.cpp
+	"image_helper.h"
+	<stdlib.h>
+	<math.h>
+
+1215465208 /home/augustoweiand/Documentos/CG/SOIL/image_helper.h
+
+1306462230 source:/home/augustoweiand/Documentos/CG/SOIL/SOIL.cpp
+	<windows.h>
+	<wingdi.h>
+	<GL/gl.h>
+	<OpenGL/gl.h>
+	<Carbon/Carbon.h>
+	<GL/gl.h>
+	<GL/glx.h>
+	"SOIL.h"
+	"stb_image_aug.h"
+	"image_helper.h"
+	"image_DXT.h"
+	<stdlib.h>
+	<string.h>
+	<iostream>
+
+1381415960 /usr/include/GL/glx.h
+	<X11/Xlib.h>
+	<X11/Xutil.h>
+	<GL/gl.h>
+	"glx_mangle.h"
+	<GL/glxext.h>
+
+1380753988 /usr/include/X11/Xlib.h
+	<sys/types.h>
+	<stdint.h>
+	<X11/X.h>
+	<X11/Xfuncproto.h>
+	<X11/Xosdefs.h>
+	<stddef.h>
+	<stdlib.h>
+
+1370798162 /usr/include/X11/X.h
+	<X11/Xmd.h>
+
+1370798162 /usr/include/X11/Xmd.h
+	<sys/isa_defs.h>
+
+1370798162 /usr/include/X11/Xfuncproto.h
+
+1370798162 /usr/include/X11/Xosdefs.h
+
+1380753988 /usr/include/X11/Xutil.h
+	<X11/Xlib.h>
+	<X11/keysym.h>
+
+1370798162 /usr/include/X11/keysym.h
+	<X11/keysymdef.h>
+
+1370798162 /usr/include/X11/keysymdef.h
+
+1381415960 /usr/include/GL/glx_mangle.h
+
+1381415960 /usr/include/GL/glxext.h
+	<windows.h>
+	<inttypes.h>
+	<inttypes.h>
+	<inttypes.h>
+	<stdint.h>
+	<stdint.h>
+	<inttypes.h>
+
+1215465208 /home/augustoweiand/Documentos/CG/SOIL/stb_image_aug.h
+	<stdio.h>
+
+1308086944 source:/home/augustoweiand/Documentos/CG/SOIL/stb_image_aug.cpp
+	"stb_image_aug.h"
+	<math.h>
+	<string.h>
+	<stdio.h>
+	<stdlib.h>
+	<memory.h>
+	<assert.h>
+	<stdarg.h>
+	"stbi_DDS_aug.h"
+	"stbi_DDS_aug_c.h"
+
+1381553389 /usr/include/memory.h
+	<features.h>
+	<string.h>
+
+1381553383 /usr/include/assert.h
+	<features.h>
+
+1215465208 /home/augustoweiand/Documentos/CG/SOIL/stbi_DDS_aug.h
+
+1215465208 /home/augustoweiand/Documentos/CG/SOIL/stbi_DDS_aug_c.h
+
+1397589731 source:/home/augustoweiand/Documentos/CG/ImageClass.cpp
+	<stdio.h>
+	<stdlib.h>
+	<math.h>
+	<string.h>
+	<GL/glut.h>
+	<GL/gl.h>
+	<GL/glu.h>
+	"ImageClass.h"
+
