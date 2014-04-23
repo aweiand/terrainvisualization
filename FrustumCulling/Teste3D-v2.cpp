@@ -8,12 +8,16 @@
 //#include <windows.h>
 #include <stdio.h>
 #include <string.h>
+#include <ctime>
+#include <math.h>
 #include <iostream>
+#include <string>
 #include <cstdlib>
 #include <GL/glut.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
-
+#include <sstream>
+#include <iomanip>
 #include "SOIL/SOIL.h"
 #include "ImageClass.h"
 
@@ -23,15 +27,20 @@ GLfloat ratio;
 float xLook = 0;
 float yLook = 500;
 float zLook = 0;
+int velocity= 20;
+bool fruston= false;
+
+clock_t start;
+double ttime;
 
 ////// Defines
-#define MAP_X	1000			         // size of map along x-axis
-#define MAP_Z	400		         // size of map along z-axis
+#define MAP_X	3000			         // size of map along x-axis
+#define MAP_Z	1000		         // size of map along z-axis
 #define MAP_SCALE	20.0f	         // the scale of the terrain map
 
 ////// Terrain Data
 float terrain[MAP_X][MAP_Z][3];		// heightfield terrain data (0-255); 256x256
-
+float frustum[6][4];
 
 using namespace std;
 // **********************************************************************
@@ -39,8 +48,7 @@ using namespace std;
 //		Inicializa os parâmetros globais de OpenGL
 //
 // **********************************************************************
-void init(void)
-{
+void init(void){
     glClearColor(0.6f, 1.0f, 0.6f, 0.0f); // Fundo de tela preto
 
     glShadeModel(GL_SMOOTH);
@@ -54,8 +62,7 @@ void init(void)
 //
 //
 // **********************************************************************
-void PosicUser()
-{
+void PosicUser(){
     // Set the clipping volume
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -73,8 +80,7 @@ void PosicUser()
 //		trata o redimensionamento da janela OpenGL
 //
 // **********************************************************************
-void reshape( int w, int h )
-{
+void reshape( int w, int h ){
     // Prevent a divide by zero, when window is too short
     // (you cant make a window of zero width).
     if(h == 0)
@@ -90,55 +96,17 @@ void reshape( int w, int h )
     PosicUser();
 
 }
-// **********************************************************************
-//  void DesenhaCubo()
-//
-//
-// **********************************************************************
-void DesenhaCubo()
-{
-    glBegin ( GL_QUADS );
-    // Front Face
-    glNormal3f(0,0,1);
-    glVertex3f(-1.0f, 0.0f,  1.0f);
-    glVertex3f( 1.0f, 0.0f,  1.0f);
-    glVertex3f( 1.0f,  1.0f,  1.0f);
-    glVertex3f(-1.0f,  1.0f,  1.0f);
-    // Back Face
-    glNormal3f(0,0,-1);
-    glVertex3f(-1.0f, 0.0f, -1.0f);
-    glVertex3f(-1.0f,  1.0f, -1.0f);
-    glVertex3f( 1.0f,  1.0f, -1.0f);
-    glVertex3f( 1.0f, 0.0f, -1.0f);
-    // Top Face
-    glNormal3f(0,1,0);
-    glVertex3f(-1.0f,  1.0f, -1.0f);
-    glVertex3f(-1.0f,  1.0f,  1.0f);
-    glVertex3f( 1.0f,  1.0f,  1.0f);
-    glVertex3f( 1.0f,  1.0f, -1.0f);
-    // Bottom Face
-    glNormal3f(0,-1,0);
-    glVertex3f(-1.0f, 0.0f, -1.0f);
-    glVertex3f( 1.0f, 0.0f, -1.0f);
-    glVertex3f( 1.0f, 0.0f,  1.0f);
-    glVertex3f(-1.0f, 0.0f,  1.0f);
-    // Right face
-    glNormal3f(1,0,0);
-    glVertex3f( 1.0f, 0.0f, -1.0f);
-    glVertex3f( 1.0f,  1.0f, -1.0f);
-    glVertex3f( 1.0f,  1.0f,  1.0f);
-    glVertex3f( 1.0f, 0.0f,  1.0f);
-    // Left Face
-    glNormal3f(-1,0,0);
-    glVertex3f(-1.0f, 0.0f, -1.0f);
-    glVertex3f(-1.0f, 0.0f,  1.0f);
-    glVertex3f(-1.0f,  1.0f,  1.0f);
-    glVertex3f(-1.0f,  1.0f, -1.0f);
-    glEnd();
+
+void drawText(const std::string str, int x = 10, int y = 9){
+    glColor3f( 1, 1, 1 );
+    glRasterPos3f(xLook+x, yLook+y, zLook-10);
+
+    for( size_t i = 0; i < str.size(); ++i ){
+        glutBitmapCharacter( GLUT_BITMAP_TIMES_ROMAN_24, str[i] );
+    }
 }
 
-void InitializeTerrain()
-{
+void InitializeTerrain(){
 	// loop through all of the heightfield points, calculating
 	// the coordinates for each point
 	for (int z = 0; z < MAP_Z; z++) {
@@ -148,6 +116,19 @@ void InitializeTerrain()
 			terrain[x][z][2] = -float(z)*MAP_SCALE;
 		}
 	}
+}
+
+bool PointInFrustum( float x, float y, float z ){
+    if (fruston){
+        return true;
+    }
+
+    int p;
+
+    for( p = 0; p < 6; p++ )
+        if( frustum[p][0] * x + frustum[p][1] * y + frustum[p][2] * z + frustum[p][3] <= 0 )
+            return false;
+    return true;
 }
 
 void DesenhaMapa(){
@@ -161,59 +142,135 @@ void DesenhaMapa(){
 		glBegin(GL_TRIANGLE_STRIP);
 		for (int x = 0; x < MAP_X-1; x++)
 		{
-			// draw vertex 0
-			glColor3f(terrain[x][z][1]/255.0f, terrain[x][z][1]/255.0f, terrain[x][z][1]/255.0f);
-			glVertex3f(terrain[x][z][0], terrain[x][z][1], terrain[x][z][2]);
+            if (PointInFrustum(terrain[x][z][0], terrain[x][z][1], terrain[x][z][2])){
+                // draw vertex 0
+                glColor3f(terrain[x][z][1]/255.0f, terrain[x][z][1]/255.0f, terrain[x][z][1]/255.0f);
+                glVertex3f(terrain[x][z][0], terrain[x][z][1], terrain[x][z][2]);
+			//}
 
-			// draw vertex 1
-			glColor3f(terrain[x+1][z][1]/255.0f, terrain[x+1][z][1]/255.0f, terrain[x+1][z][1]/255.0f);
-			glVertex3f(terrain[x+1][z][0], terrain[x+1][z][1], terrain[x+1][z][2]);
+            //if (PointInFrustum(terrain[x+1][z][0], terrain[x+1][z][1], terrain[x+1][z][2])){
+                // draw vertex 1
+                glColor3f(terrain[x+1][z][1]/255.0f, terrain[x+1][z][1]/255.0f, terrain[x+1][z][1]/255.0f);
+                glVertex3f(terrain[x+1][z][0], terrain[x+1][z][1], terrain[x+1][z][2]);
+            //}
 
-			// draw vertex 2
-			glColor3f(terrain[x][z+1][1]/255.0f, terrain[x][z+1][1]/255.0f, terrain[x][z+1][1]/255.0f);
-			glVertex3f(terrain[x][z+1][0], terrain[x][z+1][1], terrain[x][z+1][2]);
+            //if (PointInFrustum(terrain[x][z+1][0], terrain[x][z+1][1], terrain[x][z+1][2])){
+                // draw vertex 2
+                glColor3f(terrain[x][z+1][1]/255.0f, terrain[x][z+1][1]/255.0f, terrain[x][z+1][1]/255.0f);
+                glVertex3f(terrain[x][z+1][0], terrain[x][z+1][1], terrain[x][z+1][2]);
+            //}
 
-			// draw vertex 3
-			glColor3f(terrain[x+1][z+1][1]/255.0f, terrain[x+1][z+1][1]/255.0f, terrain[x+1][z+1][1]/255.0f);
-			glVertex3f(terrain[x+1][z+1][0], terrain[x+1][z+1][1], terrain[x+1][z+1][2]);
+            //if (PointInFrustum(terrain[x+1][z+1][0], terrain[x+1][z+1][1], terrain[x+1][z+1][2])){
+                // draw vertex 3
+                glColor3f(terrain[x+1][z+1][1]/255.0f, terrain[x+1][z+1][1]/255.0f, terrain[x+1][z+1][1]/255.0f);
+                glVertex3f(terrain[x+1][z+1][0], terrain[x+1][z+1][1], terrain[x+1][z+1][2]);
+            }
 		}
 		glEnd();
 	}
 }
+
+void ExtractFrustum(){
+   float   proj[16];
+   float   modl[16];
+   float   clip[16];
+   float   t;
+
+   /* Get the current PROJECTION matrix from OpenGL */
+   glGetFloatv( GL_PROJECTION_MATRIX, proj );
+
+   /* Get the current MODELVIEW matrix from OpenGL */
+   glGetFloatv( GL_MODELVIEW_MATRIX, modl );
+
+   /* Combine the two matrices (multiply projection by modelview) */
+   clip[ 0] = modl[ 0] * proj[ 0] + modl[ 1] * proj[ 4] + modl[ 2] * proj[ 8] + modl[ 3] * proj[12];
+   clip[ 1] = modl[ 0] * proj[ 1] + modl[ 1] * proj[ 5] + modl[ 2] * proj[ 9] + modl[ 3] * proj[13];
+   clip[ 2] = modl[ 0] * proj[ 2] + modl[ 1] * proj[ 6] + modl[ 2] * proj[10] + modl[ 3] * proj[14];
+   clip[ 3] = modl[ 0] * proj[ 3] + modl[ 1] * proj[ 7] + modl[ 2] * proj[11] + modl[ 3] * proj[15];
+
+   clip[ 4] = modl[ 4] * proj[ 0] + modl[ 5] * proj[ 4] + modl[ 6] * proj[ 8] + modl[ 7] * proj[12];
+   clip[ 5] = modl[ 4] * proj[ 1] + modl[ 5] * proj[ 5] + modl[ 6] * proj[ 9] + modl[ 7] * proj[13];
+   clip[ 6] = modl[ 4] * proj[ 2] + modl[ 5] * proj[ 6] + modl[ 6] * proj[10] + modl[ 7] * proj[14];
+   clip[ 7] = modl[ 4] * proj[ 3] + modl[ 5] * proj[ 7] + modl[ 6] * proj[11] + modl[ 7] * proj[15];
+
+   clip[ 8] = modl[ 8] * proj[ 0] + modl[ 9] * proj[ 4] + modl[10] * proj[ 8] + modl[11] * proj[12];
+   clip[ 9] = modl[ 8] * proj[ 1] + modl[ 9] * proj[ 5] + modl[10] * proj[ 9] + modl[11] * proj[13];
+   clip[10] = modl[ 8] * proj[ 2] + modl[ 9] * proj[ 6] + modl[10] * proj[10] + modl[11] * proj[14];
+   clip[11] = modl[ 8] * proj[ 3] + modl[ 9] * proj[ 7] + modl[10] * proj[11] + modl[11] * proj[15];
+
+   clip[12] = modl[12] * proj[ 0] + modl[13] * proj[ 4] + modl[14] * proj[ 8] + modl[15] * proj[12];
+   clip[13] = modl[12] * proj[ 1] + modl[13] * proj[ 5] + modl[14] * proj[ 9] + modl[15] * proj[13];
+   clip[14] = modl[12] * proj[ 2] + modl[13] * proj[ 6] + modl[14] * proj[10] + modl[15] * proj[14];
+   clip[15] = modl[12] * proj[ 3] + modl[13] * proj[ 7] + modl[14] * proj[11] + modl[15] * proj[15];
+
+   /* Extract the numbers for the RIGHT plane */
+   frustum[0][0] = clip[ 3] - clip[ 0];
+   frustum[0][1] = clip[ 7] - clip[ 4];
+   frustum[0][2] = clip[11] - clip[ 8];
+   frustum[0][3] = clip[15] - clip[12];
+
+   /* Extract the numbers for the LEFT plane */
+   frustum[1][0] = clip[ 3] + clip[ 0];
+   frustum[1][1] = clip[ 7] + clip[ 4];
+   frustum[1][2] = clip[11] + clip[ 8];
+   frustum[1][3] = clip[15] + clip[12];
+
+   /* Extract the BOTTOM plane */
+   frustum[2][0] = clip[ 3] + clip[ 1];
+   frustum[2][1] = clip[ 7] + clip[ 5];
+   frustum[2][2] = clip[11] + clip[ 9];
+   frustum[2][3] = clip[15] + clip[13];
+
+   /* Extract the TOP plane */
+   frustum[3][0] = clip[ 3] - clip[ 1];
+   frustum[3][1] = clip[ 7] - clip[ 5];
+   frustum[3][2] = clip[11] - clip[ 9];
+   frustum[3][3] = clip[15] - clip[13];
+
+   /* Extract the FAR plane */
+   frustum[4][0] = clip[ 3] - clip[ 2];
+   frustum[4][1] = clip[ 7] - clip[ 6];
+   frustum[4][2] = clip[11] - clip[10];
+   frustum[4][3] = clip[15] - clip[14];
+
+   /* Extract the NEAR plane */
+   frustum[5][0] = clip[ 3] + clip[ 2];
+   frustum[5][1] = clip[ 7] + clip[ 6];
+   frustum[5][2] = clip[11] + clip[10];
+   frustum[5][3] = clip[15] + clip[14];
+}
+
 
 // **********************************************************************
 //  void display( void )
 //
 //
 // **********************************************************************
-//float alturas[]= {1,2,0.5,4,1,2,3,6,1};
-void display( void )
-{
-    static double angY = 0;
+void display( void ){
+    start = clock();
 
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
     PosicUser();
 
-    //glMatrixMode(GL_MODELVIEW);
-
     DesenhaMapa();
 
-    /*
-    for(float tx=-20; tx<20; tx+=2)
-        for(float tz=5; tz>-20; tz-=2)
-        {
-            glPushMatrix();
-            glTranslatef ( tx, 0.0, tz );
-            glScalef(1,rand()%8,1);
+    ExtractFrustum();
 
-            float verm = (rand()%100)/100.0;
-            float verd = (rand()%100)/100.0;
-            glColor3f(verm,verd,0.0f); // verde
-            DesenhaCubo();
-            glPopMatrix();
-        }
-    */
+    //Print the time on screen
+    ttime = (clock() - start) / (double)CLOCKS_PER_SEC;
+
+    std::ostringstream oss;
+    oss << std::setprecision(4) << ttime;
+    //cout << oss.str() << endl;
+
+    drawText(oss.str()+" ms");
+
+    fruston? drawText("Frustum View Off", 5, 8) : drawText("Frustum View On", 5, 8);
+
+    std::ostringstream vel;
+    vel << velocity;
+    drawText("Velocity "+vel.str(), 5, 7);
 
     glutSwapBuffers();
 }
@@ -223,30 +280,39 @@ void display( void )
 //
 //
 // **********************************************************************
-void keyboard ( unsigned char key, int x, int y )
-{
-    switch ( key )
-    {
+void keyboard ( unsigned char key, int x, int y ){
+    switch ( key ){
+    case 'o':
+        fruston ? fruston = false : fruston = true;
+        break;
     case 27:        // Termina o programa qdo
         exit ( 0 );   // a tecla ESC for pressionada
         break;
+    case '+':
+        velocity+=10;
+        cout << velocity << endl;
+        break;
+    case '-':
+        velocity-=10;
+        cout << velocity << endl;
+        break;
     case 'r':
-        yLook+=10;
+        yLook+= velocity;
         break;
     case 'f':
-        yLook-=10;
+        yLook-= velocity;
         break;
     case 'a':
-        xLook-=10;
+        xLook-= velocity;
         break;
     case 'd':
-        xLook+=10;
+        xLook+= velocity;
         break;
     case 'w':
-        zLook-=10;
+        zLook-= velocity;
         break;
     case 's':
-        zLook+=10;
+        zLook+= velocity;
         break;
     default:
         break;
@@ -258,18 +324,16 @@ void keyboard ( unsigned char key, int x, int y )
 //
 //
 // **********************************************************************
-void arrow_keys ( int a_keys, int x, int y )
-{
-    switch ( a_keys )
-    {
-    case GLUT_KEY_UP:       // When Up Arrow Is Pressed...
-        glutFullScreen ( ); // Go Into Full Screen Mode
-        break;
-    case GLUT_KEY_DOWN:     // When Down Arrow Is Pressed...
-        glutInitWindowSize  ( 700, 500 );
-        break;
-    default:
-        break;
+void arrow_keys ( int a_keys, int x, int y ){
+    switch ( a_keys ){
+        case GLUT_KEY_UP:       // When Up Arrow Is Pressed...
+            glutFullScreen ( ); // Go Into Full Screen Mode
+            break;
+        case GLUT_KEY_DOWN:     // When Down Arrow Is Pressed...
+            glutInitWindowSize  ( 700, 500 );
+            break;
+        default:
+            break;
     }
 }
 
@@ -278,8 +342,7 @@ void arrow_keys ( int a_keys, int x, int y )
 //
 //
 // **********************************************************************
-int main ( int argc, char** argv )
-{
+int main ( int argc, char** argv ){
     Image = new ImageClass();
     //int r = Image->Load("mapa.jpg");
     int r = Image->Load("world.png");
@@ -313,6 +376,7 @@ int main ( int argc, char** argv )
     glutIdleFunc ( display );
 
     glutMainLoop ( );
+
     return 0;
 }
 
