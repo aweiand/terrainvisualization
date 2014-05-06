@@ -1,13 +1,13 @@
 // **********************************************************************
-//	Basico.cpp
-//  Programa de testes com OpenGL 3D
-//	Marcio Sarroglia Pinho
-//  pinho@pucrs.br
+//	Teste3D-v2.cpp
+//  Programa de reconstrução de terreno 3D com mapa de
+//  tons de cinza carregadoa partir de uma imagem externa
+//  com 2 algoritmos de aceleração de renderização.
+//
+//	Augusto Weiand <guto.weiand@gmail.com>
 // **********************************************************************
 
-//#include <windows.h>
 #include <stdio.h>
-#include <string.h>
 #include <ctime>
 #include <math.h>
 #include <iostream>
@@ -21,32 +21,47 @@
 #include "SOIL/SOIL.h"
 #include "ImageClass.h"
 
+// **********************************************************************
+// Tamanho do Mapa em X
+#define MAP_X	3000
+
+// Tamanho do Mapa em Z
+#define MAP_Z	1000
+
+// Escala do Mapa
+#define MAP_SCALE	20.0f
+// **********************************************************************
+
 ImageClass *Image;
-
 GLfloat ratio;
-float xLook = 0;
-float yLook = 500;
-float zLook = 0;
-int velocity= 20;
-bool fruston= false;
 
+// **********************************************************************
+// Variáveis de Posicionamento da câmera, velocidade
+// e algoritmo frustum culling ligado/desligado
+float xLook = 0;
+float yLook = 1000;
+float zLook = 0;
+int velocity= 100;
+bool fruston= false;
+float teste;
+// **********************************************************************
+
+// **********************************************************************
+// Variáveis de Tempo
 clock_t start;
 double ttime;
+// **********************************************************************
 
-////// Defines
-#define MAP_X	3000			         // size of map along x-axis
-#define MAP_Z	1000		         // size of map along z-axis
-#define MAP_SCALE	20.0f	         // the scale of the terrain map
-
-////// Terrain Data
-float terrain[MAP_X][MAP_Z][3];		// heightfield terrain data (0-255); 256x256
+// **********************************************************************
+// Matriz de Terreno e Frustum
+float terrain[MAP_X][MAP_Z][3];
 float frustum[6][4];
+// **********************************************************************
 
 using namespace std;
+
 // **********************************************************************
-//  void init(void)
-//		Inicializa os parâmetros globais de OpenGL
-//
+//      Inicializa os parâmetros globais de OpenGL
 // **********************************************************************
 void init(void){
     glClearColor(0.6f, 1.0f, 0.6f, 0.0f); // Fundo de tela preto
@@ -58,12 +73,10 @@ void init(void){
 
 }
 // **********************************************************************
-//  void PosicUser()
-//
-//
+//      Posiciona o Usuário visualizador de
+//      acordo com as coordenadas globais
 // **********************************************************************
 void PosicUser(){
-    // Set the clipping volume
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluPerspective(90,ratio,1,30000);
@@ -76,27 +89,25 @@ void PosicUser(){
 
 }
 // **********************************************************************
-//  void reshape( int w, int h )
-//		trata o redimensionamento da janela OpenGL
-//
+//      Trata o redimensionamento da janela OpenGL
 // **********************************************************************
 void reshape( int w, int h ){
-    // Prevent a divide by zero, when window is too short
-    // (you cant make a window of zero width).
     if(h == 0)
         h = 1;
 
     ratio = 1.0f * w / h;
-    // Reset the coordinate system before modifying
+
     glMatrixMode(GL_PROJECTION);
-    //glLoadIdentity();
-    // Set the viewport to be the entire window
+
     glViewport(0, 0, w, h);
 
     PosicUser();
 
 }
 
+// **********************************************************************
+//      Desenha o texto na tela
+// **********************************************************************
 void drawText(const std::string str, int x = 10, int y = 9){
     glColor3f( 1, 1, 1 );
     glRasterPos3f(xLook+x, yLook+y, zLook-10);
@@ -106,9 +117,11 @@ void drawText(const std::string str, int x = 10, int y = 9){
     }
 }
 
+// **********************************************************************
+//      Inicializando a matriz do terreno e preenchendo com a
+//      escala de cinza
+// **********************************************************************
 void InitializeTerrain(){
-	// loop through all of the heightfield points, calculating
-	// the coordinates for each point
 	for (int z = 0; z < MAP_Z; z++) {
 		for (int x = 0; x < MAP_X; x++) {
 			terrain[x][z][0] = float(x)*MAP_SCALE;
@@ -118,6 +131,9 @@ void InitializeTerrain(){
 	}
 }
 
+// **********************************************************************
+//      Verificação se o ponto esta na Frustum
+// **********************************************************************
 bool PointInFrustum( float x, float y, float z ){
     if (fruston){
         return true;
@@ -131,58 +147,79 @@ bool PointInFrustum( float x, float y, float z ){
     return true;
 }
 
+// **********************************************************************
+//      Desenhando o mapa na tela, com a verificação do PointInFrustum
+//      de acordo com a variável global
+// **********************************************************************
 void DesenhaMapa(){
-	// clear screen and depth buffer
+    int tri = 1;
+    int z = 0;
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	// we are going to loop through all of our terrain's data points,
-	// but we only want to draw one triangle strip for each set along the x-axis.
-	for (int z = 0; z < MAP_Z-1; z++)
-	{
+	do {
+        int x = 0;
 		glBegin(GL_TRIANGLE_STRIP);
-		for (int x = 0; x < MAP_X-1; x++)
-		{
+		do {
             if (PointInFrustum(terrain[x][z][0], terrain[x][z][1], terrain[x][z][2])){
-                // draw vertex 0
+
+                if (terrain[x][z][2] < 1)
+                    teste = -(terrain[x][z][2]);
+                else
+                    teste = (terrain[x][z][2]);
+
+                if (!fruston){
+                    if (zLook < 1){
+                        if ((-(zLook) + 5000) < teste){
+                            tri = 3;
+                        } else {
+                            tri = 1;
+                        }
+                    } else {
+                        if (((zLook) + 5000) < teste){
+                            tri = 5;
+                        } else {
+                            tri = 1;
+                        }
+                    }
+                }
+
                 glColor3f(terrain[x][z][1]/255.0f, terrain[x][z][1]/255.0f, terrain[x][z][1]/255.0f);
                 glVertex3f(terrain[x][z][0], terrain[x][z][1], terrain[x][z][2]);
-			//}
 
-            //if (PointInFrustum(terrain[x+1][z][0], terrain[x+1][z][1], terrain[x+1][z][2])){
-                // draw vertex 1
                 glColor3f(terrain[x+1][z][1]/255.0f, terrain[x+1][z][1]/255.0f, terrain[x+1][z][1]/255.0f);
                 glVertex3f(terrain[x+1][z][0], terrain[x+1][z][1], terrain[x+1][z][2]);
-            //}
 
-            //if (PointInFrustum(terrain[x][z+1][0], terrain[x][z+1][1], terrain[x][z+1][2])){
-                // draw vertex 2
                 glColor3f(terrain[x][z+1][1]/255.0f, terrain[x][z+1][1]/255.0f, terrain[x][z+1][1]/255.0f);
                 glVertex3f(terrain[x][z+1][0], terrain[x][z+1][1], terrain[x][z+1][2]);
-            //}
 
-            //if (PointInFrustum(terrain[x+1][z+1][0], terrain[x+1][z+1][1], terrain[x+1][z+1][2])){
-                // draw vertex 3
                 glColor3f(terrain[x+1][z+1][1]/255.0f, terrain[x+1][z+1][1]/255.0f, terrain[x+1][z+1][1]/255.0f);
                 glVertex3f(terrain[x+1][z+1][0], terrain[x+1][z+1][1], terrain[x+1][z+1][2]);
             }
-		}
+
+            x+=tri;
+		} while (x < MAP_X-1);
+
 		glEnd();
-	}
+
+		z+=tri;
+	} while (z < MAP_Z-1);
 }
 
+// **********************************************************************
+//      Função para extrair a visão atual
+// **********************************************************************
 void ExtractFrustum(){
    float   proj[16];
    float   modl[16];
    float   clip[16];
-   float   t;
 
-   /* Get the current PROJECTION matrix from OpenGL */
+   // Recupera a matriz de PROJECTION do OpenGL
    glGetFloatv( GL_PROJECTION_MATRIX, proj );
 
-   /* Get the current MODELVIEW matrix from OpenGL */
+   // Recupera a matriz de MODELVIEW do OpenGL
    glGetFloatv( GL_MODELVIEW_MATRIX, modl );
 
-   /* Combine the two matrices (multiply projection by modelview) */
+   //Combina as duas matrizes multiplicando-as
    clip[ 0] = modl[ 0] * proj[ 0] + modl[ 1] * proj[ 4] + modl[ 2] * proj[ 8] + modl[ 3] * proj[12];
    clip[ 1] = modl[ 0] * proj[ 1] + modl[ 1] * proj[ 5] + modl[ 2] * proj[ 9] + modl[ 3] * proj[13];
    clip[ 2] = modl[ 0] * proj[ 2] + modl[ 1] * proj[ 6] + modl[ 2] * proj[10] + modl[ 3] * proj[14];
@@ -203,37 +240,37 @@ void ExtractFrustum(){
    clip[14] = modl[12] * proj[ 2] + modl[13] * proj[ 6] + modl[14] * proj[10] + modl[15] * proj[14];
    clip[15] = modl[12] * proj[ 3] + modl[13] * proj[ 7] + modl[14] * proj[11] + modl[15] * proj[15];
 
-   /* Extract the numbers for the RIGHT plane */
+   // extrai o plano da direita
    frustum[0][0] = clip[ 3] - clip[ 0];
    frustum[0][1] = clip[ 7] - clip[ 4];
    frustum[0][2] = clip[11] - clip[ 8];
    frustum[0][3] = clip[15] - clip[12];
 
-   /* Extract the numbers for the LEFT plane */
+   // extrai o plano da esquerda
    frustum[1][0] = clip[ 3] + clip[ 0];
    frustum[1][1] = clip[ 7] + clip[ 4];
    frustum[1][2] = clip[11] + clip[ 8];
    frustum[1][3] = clip[15] + clip[12];
 
-   /* Extract the BOTTOM plane */
+   // extrai o plano de baixo
    frustum[2][0] = clip[ 3] + clip[ 1];
    frustum[2][1] = clip[ 7] + clip[ 5];
    frustum[2][2] = clip[11] + clip[ 9];
    frustum[2][3] = clip[15] + clip[13];
 
-   /* Extract the TOP plane */
+   // extrai o plano de cima
    frustum[3][0] = clip[ 3] - clip[ 1];
    frustum[3][1] = clip[ 7] - clip[ 5];
    frustum[3][2] = clip[11] - clip[ 9];
    frustum[3][3] = clip[15] - clip[13];
 
-   /* Extract the FAR plane */
+   // extrai o plano de longe
    frustum[4][0] = clip[ 3] - clip[ 2];
    frustum[4][1] = clip[ 7] - clip[ 6];
    frustum[4][2] = clip[11] - clip[10];
    frustum[4][3] = clip[15] - clip[14];
 
-   /* Extract the NEAR plane */
+   // extrai o plano de perto
    frustum[5][0] = clip[ 3] + clip[ 2];
    frustum[5][1] = clip[ 7] + clip[ 6];
    frustum[5][2] = clip[11] + clip[10];
@@ -242,9 +279,7 @@ void ExtractFrustum(){
 
 
 // **********************************************************************
-//  void display( void )
-//
-//
+//      Display
 // **********************************************************************
 void display( void ){
     start = clock();
@@ -257,12 +292,10 @@ void display( void ){
 
     ExtractFrustum();
 
-    //Print the time on screen
     ttime = (clock() - start) / (double)CLOCKS_PER_SEC;
 
     std::ostringstream oss;
     oss << std::setprecision(4) << ttime;
-    //cout << oss.str() << endl;
 
     drawText(oss.str()+" ms");
 
@@ -276,17 +309,25 @@ void display( void ){
 }
 
 // **********************************************************************
-//  void keyboard ( unsigned char key, int x, int y )
-//
-//
+//      Teclas comuns
+//       'o' - Ativar/Desativar Algoritmo Frustum Culling e o de Corte de Visão;
+//       'esc' - Fechar;
+//       '+' - Aumentar a velocidade;
+//       '-' - Reduzir a velocidade;
+//       'r' - Subir no mapa;
+//       'f' - Descer no mapa;
+//       'w' - andar para frente no mapa;
+//       's' - andar para trás no mapa;
+//       'a' - andar para a esquerda no mapa;
+//       'd' - andar para a direita no mapa.
 // **********************************************************************
 void keyboard ( unsigned char key, int x, int y ){
     switch ( key ){
     case 'o':
         fruston ? fruston = false : fruston = true;
         break;
-    case 27:        // Termina o programa qdo
-        exit ( 0 );   // a tecla ESC for pressionada
+    case 27:
+        exit ( 0 );
         break;
     case '+':
         velocity+=10;
@@ -320,16 +361,16 @@ void keyboard ( unsigned char key, int x, int y ){
 }
 
 // **********************************************************************
-//  void arrow_keys ( int a_keys, int x, int y )
-//
-//
+//      Teclas especiais
+//       Seta para cima - Fullscreen;
+//       Seta para baixo - Reduz janela.
 // **********************************************************************
 void arrow_keys ( int a_keys, int x, int y ){
     switch ( a_keys ){
-        case GLUT_KEY_UP:       // When Up Arrow Is Pressed...
-            glutFullScreen ( ); // Go Into Full Screen Mode
+        case GLUT_KEY_UP:
+            glutFullScreen ( );
             break;
-        case GLUT_KEY_DOWN:     // When Down Arrow Is Pressed...
+        case GLUT_KEY_DOWN:
             glutInitWindowSize  ( 700, 500 );
             break;
         default:
@@ -338,9 +379,9 @@ void arrow_keys ( int a_keys, int x, int y ){
 }
 
 // **********************************************************************
-//  void main ( int argc, char** argv )
-//
-//
+//      Main.
+//        Lê uma imagem world.png para a escala de
+//        alturas em tons de cinza.
 // **********************************************************************
 int main ( int argc, char** argv ){
     Image = new ImageClass();
@@ -349,21 +390,16 @@ int main ( int argc, char** argv ){
 
     if (!r)
         exit(1);
-    else {
-        cout << ("Imagem carregada!\n");
-        cout << "Canais: "  << Image->Channels() << endl;
-    }
 
     xLook = (Image->SizeX() * MAP_SCALE) / 2 ;
     zLook = 500;
 
     glutInit            ( &argc, argv );
-    glutInitDisplayMode (GLUT_DOUBLE | GLUT_DEPTH | GLUT_RGB );// | GLUT_STEREO);// | GLUT_DOUBLE | GLUT_RGBA );
-    //glutInitDisplayMode (GLUT_RGB | GLUT_DEPTH | GLUT_STEREO);// | GLUT_DOUBLE | GLUT_RGBA );
+    glutInitDisplayMode (GLUT_DOUBLE | GLUT_DEPTH | GLUT_RGB );
 
     glutInitWindowPosition (0,0);
     glutInitWindowSize  ( 700, 500 );
-    glutCreateWindow    ( "Computacao Grafica - Exemplo Basico 3D" );
+    glutCreateWindow    ( "Computacao Grafica - Augusto Weiand" );
 
     InitializeTerrain();
 
@@ -379,6 +415,3 @@ int main ( int argc, char** argv ){
 
     return 0;
 }
-
-
-
