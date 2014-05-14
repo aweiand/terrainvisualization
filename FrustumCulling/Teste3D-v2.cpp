@@ -1,7 +1,7 @@
 // **********************************************************************
 //	Teste3D-v2.cpp
 //  Programa de reconstrução de terreno 3D com mapa de
-//  tons de cinza carregadoa partir de uma imagem externa
+//  tons de cinza carregado a partir de uma imagem externa
 //  com 2 algoritmos de aceleração de renderização.
 //
 //	Augusto Weiand <guto.weiand@gmail.com>
@@ -22,12 +22,6 @@
 #include "ImageClass.h"
 
 // **********************************************************************
-// Tamanho do Mapa em X
-#define MAP_X	3000
-
-// Tamanho do Mapa em Z
-#define MAP_Z	1000
-
 // Escala do Mapa
 #define MAP_SCALE	20.0f
 // **********************************************************************
@@ -54,7 +48,7 @@ double ttime;
 
 // **********************************************************************
 // Matriz de Terreno e Frustum
-float terrain[MAP_X][MAP_Z][3];
+float ***terrain;
 float frustum[6][4];
 // **********************************************************************
 
@@ -122,13 +116,17 @@ void drawText(const std::string str, int x = 10, int y = 9){
 //      escala de cinza
 // **********************************************************************
 void InitializeTerrain(){
-	for (int z = 0; z < MAP_Z; z++) {
-		for (int x = 0; x < MAP_X; x++) {
-			terrain[x][z][0] = float(x)*MAP_SCALE;
-			terrain[x][z][1] = float(Image->GetPointIntensity(x,z));
-			terrain[x][z][2] = -float(z)*MAP_SCALE;
-		}
-	}
+    terrain = new float**[Image->SizeX()];
+    for (int x = 0; x < Image->SizeX(); x++) {
+       terrain[x] = new float*[Image->SizeY()];
+       for (int z = 0; z <Image->SizeY(); z++) {
+            terrain[x][z] = new float[3];
+
+            terrain[x][z][0] = float(x)*MAP_SCALE;
+            terrain[x][z][1] = float(Image->GetPointIntensity(x,z));
+            terrain[x][z][2] = float(z)*MAP_SCALE;
+       }
+    }
 }
 
 // **********************************************************************
@@ -169,14 +167,14 @@ void DesenhaMapa(){
 
                 if (!fruston){
                     if (zLook < 1){
-                        if ((-(zLook) + 5000) < teste){
+                        if ((-(zLook) - 5000) > teste){
                             tri = 3;
                         } else {
                             tri = 1;
                         }
                     } else {
-                        if (((zLook) + 5000) < teste){
-                            tri = 5;
+                        if (((zLook) - 5000) > teste){
+                            tri = 3;
                         } else {
                             tri = 1;
                         }
@@ -197,12 +195,12 @@ void DesenhaMapa(){
             }
 
             x+=tri;
-		} while (x < MAP_X-1);
+		} while (x < Image->SizeX()-1);
 
 		glEnd();
 
 		z+=tri;
-	} while (z < MAP_Z-1);
+	} while (z < Image->SizeY()-1);
 }
 
 // **********************************************************************
@@ -323,6 +321,10 @@ void display( void ){
 // **********************************************************************
 void keyboard ( unsigned char key, int x, int y ){
     switch ( key ){
+    case 'u' :
+        cout << zLook << endl;
+        cout << teste << endl;
+        break;
     case 'o':
         fruston ? fruston = false : fruston = true;
         break;
@@ -384,24 +386,23 @@ void arrow_keys ( int a_keys, int x, int y ){
 //        alturas em tons de cinza.
 // **********************************************************************
 int main ( int argc, char** argv ){
+    glutInit            ( &argc, argv );
+    glutInitDisplayMode (GLUT_DOUBLE | GLUT_DEPTH | GLUT_RGB );
+
     Image = new ImageClass();
-    //int r = Image->Load("mapa.jpg");
     int r = Image->Load("world.png");
 
     if (!r)
         exit(1);
 
-    xLook = (Image->SizeX() * MAP_SCALE) / 2 ;
-    zLook = 500;
+    InitializeTerrain();
 
-    glutInit            ( &argc, argv );
-    glutInitDisplayMode (GLUT_DOUBLE | GLUT_DEPTH | GLUT_RGB );
+    xLook = (Image->SizeX() * MAP_SCALE) / 2 ;
+    zLook = Image->SizeY() * MAP_SCALE;
 
     glutInitWindowPosition (0,0);
     glutInitWindowSize  ( 700, 500 );
     glutCreateWindow    ( "Computacao Grafica - Augusto Weiand" );
-
-    InitializeTerrain();
 
     init ();
 

@@ -1,4 +1,37 @@
 # depslib dependency file v1.0
+1397589730 source:c:\users\gutow\documents\cg\trabalho1\frustumculling\imageclass.cpp
+	<stdio.h>
+	<stdlib.h>
+	<math.h>
+	<string.h>
+	<GL/glut.h>
+	<GL/gl.h>
+	<GL/glu.h>
+	"ImageClass.h"
+
+1298986600 c:\users\gutow\documents\cg\trabalho1\frustumculling\include\gl\glut.h
+	"freeglut.h"
+
+1298986600 c:\users\gutow\documents\cg\trabalho1\frustumculling\include\gl\freeglut.h
+	"freeglut_std.h"
+	"freeglut_ext.h"
+
+1298986600 c:\users\gutow\documents\cg\trabalho1\frustumculling\include\gl\freeglut_std.h
+	<windows.h>
+	<GL/gl.h>
+	<GL/glu.h>
+
+1298986600 c:\users\gutow\documents\cg\trabalho1\frustumculling\include\gl\freeglut_ext.h
+
+1308107040 c:\users\gutow\documents\cg\trabalho1\frustumculling\imageclass.h
+	<iostream>
+	<windows.h>
+	"gl\glut.h"
+	<GL/glut.h>
+	"SOIL/SOIL.h"
+
+1215465208 c:\users\gutow\documents\cg\trabalho1\frustumculling\soil\soil.h
+
 1215465208 source:c:\users\gutow\documents\cg\trabalho1\frustumculling\soil\image_dxt.cpp
 	"image_DXT.h"
 	<math.h>
@@ -31,8 +64,6 @@
 	<string.h>
 	<iostream>
 
-1215465208 c:\users\gutow\documents\cg\trabalho1\frustumculling\soil\soil.h
-
 1215465208 c:\users\gutow\documents\cg\trabalho1\frustumculling\soil\stb_image_aug.h
 	<stdio.h>
 
@@ -52,38 +83,7 @@
 
 1215465208 c:\users\gutow\documents\cg\trabalho1\frustumculling\soil\stbi_dds_aug_c.h
 
-1397589730 source:c:\users\gutow\documents\cg\trabalho1\frustumculling\imageclass.cpp
-	<stdio.h>
-	<stdlib.h>
-	<math.h>
-	<string.h>
-	<GL/glut.h>
-	<GL/gl.h>
-	<GL/glu.h>
-	"ImageClass.h"
-
-1298986600 c:\users\gutow\documents\cg\trabalho1\frustumculling\include\gl\glut.h
-	"freeglut.h"
-
-1298986600 c:\users\gutow\documents\cg\trabalho1\frustumculling\include\gl\freeglut.h
-	"freeglut_std.h"
-	"freeglut_ext.h"
-
-1298986600 c:\users\gutow\documents\cg\trabalho1\frustumculling\include\gl\freeglut_std.h
-	<windows.h>
-	<GL/gl.h>
-	<GL/glu.h>
-
-1298986600 c:\users\gutow\documents\cg\trabalho1\frustumculling\include\gl\freeglut_ext.h
-
-1308107040 c:\users\gutow\documents\cg\trabalho1\frustumculling\imageclass.h
-	<iostream>
-	<windows.h>
-	"gl\glut.h"
-	<GL/glut.h>
-	"SOIL/SOIL.h"
-
-1399417882 source:c:\users\gutow\documents\cg\trabalho1\frustumculling\teste3d-v2.cpp
+1400099507 source:c:\users\gutow\documents\cg\trabalho1\frustumculling\teste3d-v2.cpp
 	<stdio.h>
 	<ctime>
 	<math.h>
